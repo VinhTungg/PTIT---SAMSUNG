@@ -1,82 +1,55 @@
-#include <iostream>
-#include <vector>
-#include <queue>
-#include <unordered_map>
-#include <unordered_set>
-using namespace std;
+#include <bits/stdc++.h>
+#define ll long long
+#define foru(i,a,b) for(int i = a; i <= b; ++i)
+#define boost ios::sync_with_stdio(0); cin.tie(0); cout.tie(0);
+#define pb push_back
+#define mk make_pair
+#define fi first
+#define se second
+#define endl "\n"
+#define sz size
+#define all(a) a.begin(), a.end()
+#define MOD 1000000007
 
-// Hàm tạo ra tất cả các biến thể của từ bằng cách thay thế từng ký tự bằng '*'
-vector<string> generatePatterns(const string& word) {
-    vector<string> patterns;
-    for (int i = 0; i < word.length(); ++i) {
-        string pattern = word;
-        pattern[i] = '*';
-        patterns.push_back(pattern);
-    }
-    return patterns;
+using namespace std;
+vector<string> v;
+int cnt = 0;
+
+bool compare(string a, string b){
+    int cnt = 0;
+    for(int i = 0; i < a.size(); ++i) if(a[i] != b[i]) ++cnt;
+    return cnt == 1;
 }
 
-int findShortestPath(string s, string t, vector<string>& words) {
-    if (s == t) return 0;
-    
-    // Tạo map cho các pattern đến từ tương ứng
-    unordered_map<string, vector<string>> patternToWord;
-    for (const string& word : words) {
-        vector<string> patterns = generatePatterns(word);
-        for (const string& pattern : patterns) {
-            patternToWord[pattern].push_back(word);
-        }
-    }
-
-    // Sử dụng BFS
+int BFS(string s, string t, vector<string>& v){
+    unordered_map<string, int> cnt;
+    cnt[s] = 0;
     queue<string> q;
-    unordered_map<string, int> distance; // Độ dài đường đi ngắn nhất đến mỗi từ
     q.push(s);
-    distance[s] = 0;
-
-    while (!q.empty()) {
-        string current = q.front(); q.pop();
-        int currDist = distance[current];
-        
-        // Tạo tất cả các biến thể pattern của current
-        vector<string> patterns = generatePatterns(current);
-        for (const string& pattern : patterns) {
-            // Kiểm tra tất cả các từ khớp với pattern này
-            if (patternToWord.find(pattern) != patternToWord.end()) {
-                for (const string& next : patternToWord[pattern]) {
-                    // Nếu chưa được thăm, thêm vào queue
-                    if (distance.find(next) == distance.end()) {
-                        distance[next] = currDist + 1;
-                        q.push(next);
-                        // Nếu tìm thấy từ đích, trả về khoảng cách
-                        if (next == t) return distance[next];
-                    }
-                }
+    while(!q.empty()){
+        string tmp = q.front(); q.pop();
+        for(auto &c : v){
+            if(cnt.find(c) == cnt.end() && compare(tmp, c)){
+                cnt[c] = cnt[tmp] + 1;
+                q.push(c);
+                if(c == t) return cnt[t] + 1;
             }
         }
     }
-
-    return -1; // Không tìm thấy đường đi
+    return -1;
 }
 
-int main() {
-    int T;
-    cin >> T;
-    while (T--) {
+int main(){
+    boost;
+    int t;
+    cin >> t;
+    while(t--){
         int n;
         string s, t;
         cin >> n >> s >> t;
-        vector<string> words(n);
-        for (int i = 0; i < n; ++i) {
-            cin >> words[i];
-        }
-
-        int result = findShortestPath(s, t, words);
-        if (result == -1) {
-            cout << 0 << endl; // Không tìm thấy đường đi
-        } else {
-            cout << result + 1 << endl;
-        }
+        vector<string> v(n);
+        for(auto &c : v) cin >> c;
+        int result = BFS(s, t, v);
+        cout << result << endl;
     }
-    return 0;
 }
